@@ -4,41 +4,48 @@ from youtube_comment_downloader import YoutubeCommentDownloader
 # Initialize the downloader
 downloader = YoutubeCommentDownloader()
 
-# Dictionary of topics and their YouTube video URLs
-video_links = {
-    'politics': 'https://www.youtube.com/watch?v=qtz3gHi-XQM',
-    'technology': 'https://www.youtube.com/watch?v=VXqMJqP7mvk',
-    'sports': 'https://www.youtube.com/watch?v=H-9fQ7OkNrg',
-    'entertainment': 'https://www.youtube.com/watch?v=nl9oP6GWLoc',
-    'travel': 'https://www.youtube.com/watch?v=PgrGHs0U2Zs&t=67s',
-    'daily_life': 'https://www.youtube.com/watch?v=67NYUTrcV9Y',
-    'fashion': 'https://www.youtube.com/watch?v=YMv5a-WLm4A',
-    'finance': 'https://www.youtube.com/watch?v=_-ofPdzjxAs',
-    'hobbies': 'https://www.youtube.com/watch?v=7SZI9sa-vWU'
-}
+# List of video URLs
+video_urls = [
+    'https://www.youtube.com/watch?v=FBQpsd8igZ8&t=1075s',
+    'https://www.youtube.com/watch?v=nRyZpSiqr-U&t=10s',
+    'https://www.youtube.com/watch?v=sVvqERTVoSE',
+    'https://www.youtube.com/watch?v=vnSowo8me_o&t=4s',
+    'https://www.youtube.com/watch?v=sVvqERTVoSE',
+    'https://www.youtube.com/watch?v=3pXm_gvJcNA',
+    'https://www.youtube.com/watch?v=bUbve2g0n4U',
+    'https://www.youtube.com/watch?v=7BGa_JLBRpU',
+    'https://www.youtube.com/watch?v=I9u59hPGl08',
+]
 
-# Loop through each topic and download comments
-for topic, url in video_links.items():
-    print(f"Scraping comments for {topic}...")
+# Topic name (used as prefix for file names)
+topic = 'gambling'
 
-    # Fetch comments
-    comments = downloader.get_comments_from_url(url)
+# Loop through each video and scrape comments
+for idx, video_url in enumerate(video_urls, start=1):
+    print(f"Scraping comments for video {idx}...")
 
-    # File name based on topic
-    filename = f'youtube_comments_{topic}.csv'
-    
-    # Save to CSV
-    with open(filename, mode='w', newline='', encoding='utf-8') as file:
-        writer = csv.writer(file)
-        writer.writerow(['Username', 'Comment', 'Time'])  # Write header
+    try:
+        comments = downloader.get_comments_from_url(video_url)
 
-        for comment in comments:
-            writer.writerow([
-                comment.get('author', ''),
-                comment.get('text', ''),
-                comment.get('time', '')
-            ])
+        # Clean filename from URL
+        video_id = video_url.split('v=')[1].split('&')[0]
+        filename = f'youtube_comments_{topic}_{idx}_{video_id}.csv'
 
-    print(f"Saved comments to {filename}")
+        # Save to CSV
+        with open(filename, mode='w', newline='', encoding='utf-8') as file:
+            writer = csv.writer(file)
+            writer.writerow(['Username', 'Comment', 'Time'])  # Write header
 
-print("✅ All scraping complete!")
+            for comment in comments:
+                writer.writerow([
+                    comment.get('author', ''),
+                    comment.get('text', ''),
+                    comment.get('time', '')
+                ])
+
+        print(f"✅ Saved comments to {filename}")
+
+    except Exception as e:
+        print(f"❌ Failed to scrape video {video_url}: {e}")
+
+print("🎉 All scraping complete!")
